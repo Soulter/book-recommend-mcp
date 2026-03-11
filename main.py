@@ -43,7 +43,8 @@ def book_recommend(category: str) -> str:
         title = book.get("图书名称", "未知书名").strip()
         author = book.get("作者", "未知作者").strip()
         level = book.get("推荐学段", "未知学段").strip()
-        lines.append(f"{index}. {title} | 作者：{author} | 学段：{level}")
+        summary = book.get("故事梗概", "无简介").strip()
+        lines.append(f"{index}. {title} | 作者：{author} | 学段：{level} | 简介：{summary}")
     return "\n".join(lines)
 
 
