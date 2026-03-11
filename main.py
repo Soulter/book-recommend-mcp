@@ -4,7 +4,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 # Initialize FastMCP server
-mcp = FastMCP("book-recommend")
+mcp = FastMCP("book-recommend", port=6267)
 
 BOOKLIST_PATH = Path(__file__).parent / "booklist.csv"
 
@@ -49,7 +49,7 @@ def book_recommend(category: str) -> str:
 
 def main():
     # Initialize and run the server
-    mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http")
 
 
 if __name__ == "__main__":
