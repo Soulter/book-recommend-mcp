@@ -32,6 +32,10 @@ def get_book_video_link(title: str) -> tuple[bool, str]:
     return False, ""
 
 
+def has_intro_video(book: dict[str, str]) -> bool:
+    return bool(book.get("intro-video", "").strip())
+
+
 @mcp.tool(name="book-recommend")
 def book_recommend(category: str) -> str:
     """Recommend 5 random books by category.
@@ -61,14 +65,31 @@ def book_recommend(category: str) -> str:
             ensure_ascii=False,
         )
 
-    selected_books = random.sample(matched_books, k=min(5, len(matched_books)))
+    select_count = min(5, len(matched_books))
+
+    if normalized_category == "文学":
+        books_with_video = [book for book in matched_books if has_intro_video(book)]
+
+        if books_with_video:
+            selected_books = [random.choice(books_with_video)]
+            remaining_books = [book for book in matched_books if book is not selected_books[0]]
+            remaining_count = select_count - 1
+            if remaining_count > 0:
+                selected_books.extend(
+                    random.sample(remaining_books, k=min(remaining_count, len(remaining_books)))
+                )
+            random.shuffle(selected_books)
+        else:
+            selected_books = random.sample(matched_books, k=select_count)
+    else:
+        selected_books = random.sample(matched_books, k=select_count)
     recommend_books = []
     for index, book in enumerate(selected_books, start=1):
         title = book.get("图书名称", "未知书名").strip()
         author = book.get("作者", "未知作者").strip()
         level = book.get("推荐学段", "未知学段").strip()
         summary = book.get("故事梗概", "无简介").strip()
-        has_video, video = get_book_video_link(title)
+        has_video, _ = get_book_video_link(title)
         recommend_books.append(
             {
                 "rank": index,
@@ -77,7 +98,6 @@ def book_recommend(category: str) -> str:
                 "level": level,
                 "summary": summary,
                 "has_video": has_video,
-                "video": video,
             }
         )
 
